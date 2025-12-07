@@ -5,3 +5,4 @@ plotly
 pmdarima
 scikit-learn
 openpyxl
+matplotlib
