@@ -19,32 +19,33 @@ st.set_page_config(
 # --- CSS İLE GÖRSELLİĞİ ARTIRMA (BÜYÜK VE KALIN SEKMELER) ---
 st.markdown("""
 <style>
-    .stApp { background-color: #F8F9FA; }
+    .stApp { background-color: #f8f9fa; }
     
-    /* 1. SEKMELERİN GÖRÜNÜMÜ */
+    /* --- 1. SIDEBAR (YAN MENÜ) GENİŞLİĞİ --- */
+   
+    [data-testid="stSidebar"] {
+        min-width: 600px !important;
+        max-width: 800px !important;
+    }
     
-    /* Sekme Çubuğu Arkaplanı */
+    /* --- 2. SEKMELERİN GÖRÜNÜMÜ --- */
+    
     .stTabs [data-baseweb="tab-list"] {
-        gap: 12px; /* Sekmeler arası boşluk */
+        gap: 12px;
         background-color: transparent;
         padding-bottom: 10px;
-        border-bottom: 3px solid #E0E0E0; /* Alt çizgi de kalın */
+        border-bottom: 3px solid #E0E0E0;
     }
 
-    /* Pasif Sekmeler */
     .stTabs [data-baseweb="tab"] {
-        height: 60px; /* Yükseklik arttı */
+        height: 60px;
         white-space: pre-wrap;
         background-color: #FFFFFF;
-        border-radius: 10px; /* Köşeler daha yuvarlak */
+        border-radius: 10px;
         color: #555555;
-        
-        /* --- İSTENEN DEĞİŞİKLİKLER BURADA --- */
-        font-weight: 700;      /* Yazı kalınlığı */
-        font-size: 20px;       /* Yazı boyutu (BÜYÜTÜLDÜ) */
-        border: 3px solid #CCCCCC; /* Çerçeve (KALINLAŞTIRILDI) */
-        /* ------------------------------------ */
-        
+        font-weight: 700;
+        font-size: 20px;
+        border: 3px solid #CCCCCC;
         box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
         flex-grow: 1;
         text-align: center;
@@ -54,25 +55,35 @@ st.markdown("""
         justify_content: center;
     }
 
-    /* Aktif (Seçili) Sekme */
     .stTabs [aria-selected="true"] {
         background-color: #FF4B4B !important;
         color: #FFFFFF !important;
-        
-        /* Aktifken çerçeve rengi kırmızı ve kalın */
         border: 3px solid #FF4B4B; 
-        
         font-weight: bold;
         transform: scale(1.02);
         box-shadow: 0px 4px 8px rgba(255, 75, 75, 0.4);
     }
     
-    /* Hover (Üzerine Gelince) */
     .stTabs [data-baseweb="tab"]:hover {
         background-color: #FFE5E5;
         color: #FF4B4B;
         border-color: #FF4B4B;
         cursor: pointer;
+    }
+    
+    /* --- MOBİL İÇİN ÖZEL AYARLAR --- */
+    @media only screen and (max-width: 600px) {
+        .stTabs [data-baseweb="tab"] {
+            font-size: 12px !important;
+            height: 40px !important;
+            padding: 2px !important;
+        }
+        h1 { font-size: 24px !important; }
+        
+        /* Mobilde sidebar otomatik daralsın */
+        [data-testid="stSidebar"] {
+            min-width: 100% !important;
+        }
     }
     
     /* İstatistik Kartları */
