@@ -164,32 +164,129 @@ except Exception as e:
     st.stop()
 
 # --- SIDEBAR ---
+
 with st.sidebar:
     st.markdown("## 🎛️ Forecast Simulator")
     st.markdown("Adjust the drivers below to simulate **H1 2025** scenarios.")
     st.divider()
 
-    if 'interest_val' not in st.session_state: st.session_state.interest_val = 0.0
-    if 'exchange_val' not in st.session_state: st.session_state.exchange_val = 0.0
-    if 'conf_val' not in st.session_state: st.session_state.conf_val = 0.0
-    if 'cpi_val' not in st.session_state: st.session_state.cpi_val = 0.0
+    # 1. BAŞLANGIÇ DEĞERLERİ (INITIALIZATION)
+    # Sayfa ilk açıldığında hafızada bu değerler yoksa oluşturuyoruz
+    if "interest_slider" not in st.session_state: st.session_state.interest_slider = 0.0
+    if "interest_input" not in st.session_state: st.session_state.interest_input = 0.0
+    
+    if "exchange_slider" not in st.session_state: st.session_state.exchange_slider = 2.0
+    if "exchange_input" not in st.session_state: st.session_state.exchange_input = 2.0
+    
+    if "conf_slider" not in st.session_state: st.session_state.conf_slider = 0.0
+    if "conf_input" not in st.session_state: st.session_state.conf_input = 0.0
+    
+    if "cpi_slider" not in st.session_state: st.session_state.cpi_slider = 3.0
+    if "cpi_input" not in st.session_state: st.session_state.cpi_input = 3.0
 
+    # 2. SENKRONİZASYON FONKSİYONLARI (CALLBACKS)
+    # Biri değiştiğinde DİĞERİNİN hafızasını güncelliyoruz
+    def update_interest(source):
+        if source == 'slider':
+            st.session_state.interest_input = st.session_state.interest_slider
+        elif source == 'input':
+            st.session_state.interest_slider = st.session_state.interest_input
+            
+    def update_exchange(source):
+        if source == 'slider':
+            st.session_state.exchange_input = st.session_state.exchange_slider
+        elif source == 'input':
+            st.session_state.exchange_slider = st.session_state.exchange_input
+
+    def update_conf(source):
+        if source == 'slider':
+            st.session_state.conf_input = st.session_state.conf_slider
+        elif source == 'input':
+            st.session_state.conf_slider = st.session_state.conf_input
+
+    def update_cpi(source):
+        if source == 'slider':
+            st.session_state.cpi_input = st.session_state.cpi_slider
+        elif source == 'input':
+            st.session_state.cpi_slider = st.session_state.cpi_input
+
+    # 3. RESET FONKSİYONU
     def reset_sliders():
-        # Slider'ların 'key' parametrelerine doğrudan erişip değerleri sıfırlıyoruz
-        st.session_state["interest_slider"] = 0.0
-        st.session_state["exchange_slider"] = 0.0
-        st.session_state["conf_slider"] = 0.0
-        st.session_state["cpi_slider"] = 0.0
+        # Tüm araçların hafızasını sıfırlıyoruz
+        st.session_state.interest_slider = 0.0
+        st.session_state.interest_input = 0.0
+        
+        st.session_state.exchange_slider = 0.0
+        st.session_state.exchange_input = 0.0
+        
+        st.session_state.conf_slider = 0.0
+        st.session_state.conf_input = 0.0
+        
+        st.session_state.cpi_slider = 0.0
+        st.session_state.cpi_input = 0.0
 
+    # --- ARAYÜZ ELEMANLARI ---
+    
+    # 1. Interest Rate
     st.markdown("### 🏦 Monetary Policy")
-    interest_change = st.slider("Interest Rate (Monthly % Change)", -10.0, 10.0, st.session_state.interest_val, step=0.1, format="%+.1f%%", key="interest_slider")
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        # Slider değişince 'update_interest' çalışır ve input'u günceller
+        interest_change = st.slider(
+            "Interest Rate (%)", -10.0, 10.0, step=0.1, format="%+.1f%%",
+            key="interest_slider", on_change=update_interest, args=('slider',)
+        )
+    with col2:
+        # Input değişince 'update_interest' çalışır ve slider'ı günceller
+        st.number_input(
+            "Manual", -10.0, 10.0, step=0.1,
+            key="interest_input", on_change=update_interest, args=('input',), 
+            label_visibility="collapsed"
+        )
     
+    # 2. Exchange Rate
     st.markdown("### 💲 Currency Market")
-    exchange_change = st.slider("USD/TRY (Monthly % Change)", -10.0, 10.0, st.session_state.exchange_val, step=0.1, format="%+.1f%%", key="exchange_slider")
+    col3, col4 = st.columns([3, 1])
+    with col3:
+        exchange_change = st.slider(
+            "USD/TRY (%)", -10.0, 10.0, step=0.1, format="%+.1f%%",
+            key="exchange_slider", on_change=update_exchange, args=('slider',)
+        )
+    with col4:
+        st.number_input(
+            "Manual", -10.0, 10.0, step=0.1,
+            key="exchange_input", on_change=update_exchange, args=('input',), 
+            label_visibility="collapsed"
+        )
     
+    # 3. Consumer Confidence
     st.markdown("### 📊 Macro Indicators")
-    conf_change = st.slider("Consumer Confidence (Monthly %)", -10.0, 10.0, st.session_state.conf_val, step=0.1, format="%+.1f%%", key="conf_slider")
-    cpi_change = st.slider("Inflation / CPI (Monthly %)", -10.0, 10.0, st.session_state.cpi_val, step=0.1, format="%+.1f%%", key="cpi_slider")
+    col5, col6 = st.columns([3, 1])
+    with col5:
+        conf_change = st.slider(
+            "Confidence (%)", -10.0, 10.0, step=0.1, format="%+.1f%%",
+            key="conf_slider", on_change=update_conf, args=('slider',)
+        )
+    with col6:
+        st.number_input(
+            "Manual", -10.0, 10.0, step=0.1,
+            key="conf_input", on_change=update_conf, args=('input',), 
+            label_visibility="collapsed"
+        )
+
+    # 4. CPI
+    col7, col8 = st.columns([3, 1])
+    with col7:
+        cpi_change = st.slider(
+            "Inflation / CPI (%)", -10.0, 10.0, step=0.1, format="%+.1f%%",
+            key="cpi_slider", on_change=update_cpi, args=('slider',)
+        )
+    with col8:
+        st.number_input(
+            "Manual", -10.0, 10.0, step=0.1,
+            key="cpi_input", on_change=update_cpi, args=('input',), 
+            label_visibility="collapsed"
+        )
     
     st.divider()
     st.button("↺ Reset Parameters", on_click=reset_sliders)
