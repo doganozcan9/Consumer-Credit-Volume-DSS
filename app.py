@@ -170,25 +170,26 @@ with st.sidebar:
     st.divider()
 
     if 'interest_val' not in st.session_state: st.session_state.interest_val = 0.0
-    if 'exchange_val' not in st.session_state: st.session_state.exchange_val = 2.0
+    if 'exchange_val' not in st.session_state: st.session_state.exchange_val = 0.0
     if 'conf_val' not in st.session_state: st.session_state.conf_val = 0.0
-    if 'cpi_val' not in st.session_state: st.session_state.cpi_val = 3.0
+    if 'cpi_val' not in st.session_state: st.session_state.cpi_val = 0.0
 
     def reset_sliders():
-        st.session_state.interest_val = 0.0
-        st.session_state.exchange_val = 2.0
-        st.session_state.conf_val = 0.0
-        st.session_state.cpi_val = 3.0
+        # Slider'ların 'key' parametrelerine doğrudan erişip değerleri sıfırlıyoruz
+        st.session_state["interest_slider"] = 0.0
+        st.session_state["exchange_slider"] = 0.0
+        st.session_state["conf_slider"] = 0.0
+        st.session_state["cpi_slider"] = 0.0
 
     st.markdown("### 🏦 Monetary Policy")
-    interest_change = st.slider("Interest Rate (Monthly % Change)", -10.0, 10.0, st.session_state.interest_val, step=0.5, format="%+.1f%%", key="interest_slider")
+    interest_change = st.slider("Interest Rate (Monthly % Change)", -10.0, 10.0, st.session_state.interest_val, step=0.1, format="%+.1f%%", key="interest_slider")
     
     st.markdown("### 💲 Currency Market")
-    exchange_change = st.slider("USD/TRY (Monthly % Change)", -5.0, 10.0, st.session_state.exchange_val, step=0.5, format="%+.1f%%", key="exchange_slider")
+    exchange_change = st.slider("USD/TRY (Monthly % Change)", -10.0, 10.0, st.session_state.exchange_val, step=0.1, format="%+.1f%%", key="exchange_slider")
     
     st.markdown("### 📊 Macro Indicators")
-    conf_change = st.slider("Consumer Confidence (Monthly %)", -10.0, 10.0, st.session_state.conf_val, step=0.5, format="%+.1f%%", key="conf_slider")
-    cpi_change = st.slider("Inflation / CPI (Monthly %)", -2.0, 10.0, st.session_state.cpi_val, step=0.5, format="%+.1f%%", key="cpi_slider")
+    conf_change = st.slider("Consumer Confidence (Monthly %)", -10.0, 10.0, st.session_state.conf_val, step=0.1, format="%+.1f%%", key="conf_slider")
+    cpi_change = st.slider("Inflation / CPI (Monthly %)", -10.0, 10.0, st.session_state.cpi_val, step=0.1, format="%+.1f%%", key="cpi_slider")
     
     st.divider()
     st.button("↺ Reset Parameters", on_click=reset_sliders)
