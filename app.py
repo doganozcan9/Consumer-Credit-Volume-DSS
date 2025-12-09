@@ -169,10 +169,36 @@ with st.sidebar:
     st.markdown("Adjust the drivers below to simulate **H1 2025** scenarios.")
     st.divider()
 
+    # Initialize session state
     if 'interest_val' not in st.session_state: st.session_state.interest_val = 0.0
     if 'exchange_val' not in st.session_state: st.session_state.exchange_val = 2.0
     if 'conf_val' not in st.session_state: st.session_state.conf_val = 0.0
     if 'cpi_val' not in st.session_state: st.session_state.cpi_val = 3.0
+
+    # Preset scenario functions
+    def set_optimistic():
+        st.session_state.interest_val = -2.0
+        st.session_state.exchange_val = 1.0
+        st.session_state.conf_val = 3.0
+        st.session_state.cpi_val = 1.5
+    
+    def set_pessimistic():
+        st.session_state.interest_val = 5.0
+        st.session_state.exchange_val = 4.0
+        st.session_state.conf_val = -5.0
+        st.session_state.cpi_val = 5.0
+    
+    def set_neutral():
+        st.session_state.interest_val = 0.0
+        st.session_state.exchange_val = 2.0
+        st.session_state.conf_val = 0.0
+        st.session_state.cpi_val = 3.0
+    
+    def set_baseline():
+        st.session_state.interest_val = 0.0
+        st.session_state.exchange_val = 1.0
+        st.session_state.conf_val = 0.0
+        st.session_state.cpi_val = 2.0
 
     def reset_sliders():
         st.session_state.interest_val = 0.0
@@ -180,19 +206,86 @@ with st.sidebar:
         st.session_state.conf_val = 0.0
         st.session_state.cpi_val = 3.0
 
-    st.markdown("### 🏦 Monetary Policy")
-    interest_change = st.slider("Interest Rate (Monthly % Change)", -10.0, 10.0, st.session_state.interest_val, step=0.5, format="%+.1f%%", key="interest_slider")
-    
-    st.markdown("### 💲 Currency Market")
-    exchange_change = st.slider("USD/TRY (Monthly % Change)", -5.0, 10.0, st.session_state.exchange_val, step=0.5, format="%+.1f%%", key="exchange_slider")
-    
-    st.markdown("### 📊 Macro Indicators")
-    conf_change = st.slider("Consumer Confidence (Monthly %)", -10.0, 10.0, st.session_state.conf_val, step=0.5, format="%+.1f%%", key="conf_slider")
-    cpi_change = st.slider("Inflation / CPI (Monthly %)", -2.0, 10.0, st.session_state.cpi_val, step=0.5, format="%+.1f%%", key="cpi_slider")
+    # Preset Scenarios Section
+    st.markdown("### 🎯 Quick Scenarios")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.button("🟢 Optimistic", on_click=set_optimistic, use_container_width=True, help="Low rates, stable currency, high confidence")
+        st.button("🔴 Pessimistic", on_click=set_pessimistic, use_container_width=True, help="High rates, weak currency, low confidence")
+    with col2:
+        st.button("🟡 Neutral", on_click=set_neutral, use_container_width=True, help="Moderate changes across all indicators")
+        st.button("⚪ Baseline", on_click=set_baseline, use_container_width=True, help="Conservative stable scenario")
     
     st.divider()
-    st.button("↺ Reset Parameters", on_click=reset_sliders)
-    st.info("Values represent monthly rate of change.")
+
+    # Current Values Summary
+    st.markdown("### 📊 Current Settings")
+    st.markdown(f"""
+    <div style="background-color: #F0F2F6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        <small><strong>Interest Rate:</strong> {st.session_state.interest_val:+.1f}%<br>
+        <strong>USD/TRY:</strong> {st.session_state.exchange_val:+.1f}%<br>
+        <strong>Consumer Confidence:</strong> {st.session_state.conf_val:+.1f}%<br>
+        <strong>CPI:</strong> {st.session_state.cpi_val:+.1f}%</small>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### 🏦 Monetary Policy")
+    interest_change = st.slider(
+        "Interest Rate (Monthly % Change)", 
+        -10.0, 10.0, 
+        st.session_state.interest_val, 
+        step=0.5, 
+        format="%+.1f%%", 
+        key="interest_slider",
+        help="Central bank interest rate changes affect credit demand"
+    )
+    st.session_state.interest_val = interest_change
+    
+    st.markdown("### 💲 Currency Market")
+    exchange_change = st.slider(
+        "USD/TRY (Monthly % Change)", 
+        -5.0, 10.0, 
+        st.session_state.exchange_val, 
+        step=0.5, 
+        format="%+.1f%%", 
+        key="exchange_slider",
+        help="Exchange rate volatility impacts import costs and inflation"
+    )
+    st.session_state.exchange_val = exchange_change
+    
+    st.markdown("### 📊 Macro Indicators")
+    conf_change = st.slider(
+        "Consumer Confidence (Monthly %)", 
+        -10.0, 10.0, 
+        st.session_state.conf_val, 
+        step=0.5, 
+        format="%+.1f%%", 
+        key="conf_slider",
+        help="Consumer sentiment drives credit demand"
+    )
+    st.session_state.conf_val = conf_change
+    
+    cpi_change = st.slider(
+        "Inflation / CPI (Monthly %)", 
+        -2.0, 10.0, 
+        st.session_state.cpi_val, 
+        step=0.5, 
+        format="%+.1f%%", 
+        key="cpi_slider",
+        help="Inflation rate affects purchasing power and credit decisions"
+    )
+    st.session_state.cpi_val = cpi_change
+    
+    st.divider()
+    
+    # Action Buttons
+    col_reset, col_apply = st.columns(2)
+    with col_reset:
+        st.button("↺ Reset", on_click=reset_sliders, use_container_width=True)
+    with col_apply:
+        st.button("✓ Apply", use_container_width=True, type="primary")
+    
+    st.info("💡 **Tip:** Use preset scenarios for quick analysis, then fine-tune with sliders.")
 
 # --- ANA EKRAN ---
 st.title("📊 Consumer Credit Volume Decision Support System")
