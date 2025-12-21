@@ -1,0 +1,60 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph Data_Layer["DATA LAYER"]
+    direction TB
+        A[("TCMB EVDS &amp; Excel Data<br>Interest, FX, CPI, Confidence")]
+  end
+ subgraph Backend_Layer["PYTHON BACKEND LOGIC"]
+    direction TB
+        B["Data Preprocessing<br>(Linear Interpolation)"]
+        C["Log Transformation<br>(Variance Stabilization)"]
+        D["Model Training<br>(Auto-ARIMAX Optimization)"]
+        E["Fitted Model<br>(AIC Minimization)"]
+  end
+ subgraph Frontend_Layer["STREAMLIT INTERFACE"]
+    direction TB
+        F["Web Application<br>(Streamlit Cloud)"]
+        G{"User Inputs<br>(Scenario Sliders)"}
+        H["Calculation Engine<br>(Predict vs Baseline)"]
+        I["Visualization &amp; Insights<br>(Interactive Charts)"]
+  end
+    A L_A_B_0@---> B
+    B L_B_C_0@--> C
+    C L_C_D_0@--> D
+    D L_D_E_0@--> E
+    E L_E_F_0@---> F
+    F L_F_G_0@--> G
+    G L_G_H_0@-- Update Parameters --> H
+    E L_E_H_0@--> H
+    H L_H_I_0@--> I
+
+     A:::data
+     B:::process
+     C:::process
+     D:::model
+     E:::model
+     F:::ui
+     G:::user
+     H:::process
+     I:::ui
+    classDef data fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:10,ry:10,color:#01579b
+    classDef process fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,rx:10,ry:10,color:#333
+    classDef model fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:10,ry:10,color:#2e7d32
+    classDef ui fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,rx:10,ry:10,color:#7b1fa2
+    classDef user fill:#ffebee,stroke:#c62828,stroke-width:2px,rx:10,ry:10,color:#c62828
+    style Data_Layer fill:#f8fdff,stroke:#01579b,stroke-width:1px,stroke-dasharray: 5 5,padding:40px,color:#01579b
+    style Backend_Layer fill:#fffff8,stroke:#fbc02d,stroke-width:1px,stroke-dasharray: 5 5,padding:40px,color:#997b00
+    style Frontend_Layer fill:#fcf5ff,stroke:#7b1fa2,stroke-width:1px,stroke-dasharray: 5 5,padding:40px,color:#7b1fa2
+
+    L_A_B_0@{ curve: basis } 
+    L_B_C_0@{ curve: basis } 
+    L_C_D_0@{ curve: basis } 
+    L_D_E_0@{ curve: basis } 
+    L_E_F_0@{ curve: basis } 
+    L_F_G_0@{ curve: basis } 
+    L_G_H_0@{ curve: basis } 
+    L_E_H_0@{ curve: basis } 
+    L_H_I_0@{ curve: basis }

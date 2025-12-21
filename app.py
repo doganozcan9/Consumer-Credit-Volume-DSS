@@ -411,79 +411,63 @@ with tab1:
     )
 
 # =============================================================================
-# TAB 2: GEÇMİŞ VERİ
+# TAB 2: GEÇMİŞ VERİ (COMPARATIVE ANALYSIS GÜNCELLEMESİ)
 # =============================================================================
 with tab2:
     st.markdown("### 📈 Historical Trends Analysis")
     
-    with st.container():
-        col_ctrl, col_stats = st.columns([1, 3])
-        with col_ctrl:
-            st.markdown("**Select Indicator:**")
-            variable = st.selectbox("Choose a variable to visualize:", df.columns, label_visibility="collapsed")
-            
-        with col_stats:
-            stats = df[variable].describe()
-            change_pct = ((df[variable].iloc[-1] - df[variable].iloc[0]) / df[variable].iloc[0]) * 100
-            
-            st.markdown(f"""
-            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-                <div class="stat-card" style="flex:1;">
-                    <div class="stat-label">Average</div>
-                    <div class="stat-value">{stats['mean']:,.2f}</div>
-                </div>
-                <div class="stat-card" style="flex:1;">
-                    <div class="stat-label">Minimum</div>
-                    <div class="stat-value">{stats['min']:,.2f}</div>
-                </div>
-                <div class="stat-card" style="flex:1;">
-                    <div class="stat-label">Maximum</div>
-                    <div class="stat-value">{stats['max']:,.2f}</div>
-                </div>
-                <div class="stat-card" style="flex:1; border-left: 5px solid {'green' if change_pct > 0 else 'red'};">
-                    <div class="stat-label">Total Change (10Y)</div>
-                    <div class="stat-value">{change_pct:+.1f}%</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+    st.info("💡 **Tip:** Select multiple indicators to compare their trends. Use the **'Normalize Data'** checkbox to scale different units (e.g., Billions vs %) onto the same chart.")
+
+    # 1. Multi-Select ve Normalize Araçları
+    all_cols = df.columns.tolist()
+    if 'Log_Target' in all_cols: all_cols.remove('Log_Target') # Log target'ı göstermeyelim
+
+    col_sel, col_check = st.columns([3, 1])
+    with col_sel:
+        selected_cols = st.multiselect(
+            "Select Indicators to Plot (Compare Variables):",
+            options=all_cols,
+            default=['Credit_Volume'] # Varsayılan olarak kredi hacmi seçili
+        )
+    with col_check:
+        st.write("") # Boşluk
+        st.write("") # Boşluk
+        normalize = st.checkbox("Normalize Data (0-1 Scale)")
 
     st.markdown("---")
-    
-    col_main_chart, col_dist_chart = st.columns([2, 1])
-    
-    with col_main_chart:
-        st.markdown("**📉 Evolution Over Time**")
-        fig_line = px.line(df, x=df.index, y=variable, markers=True)
-        fig_line.update_traces(line_color='#1f77b4', line_width=2)
-        fig_line.update_layout(template="plotly_white", height=400, margin=dict(l=20,r=20,t=30,b=20))
+
+    # 2. Grafik Çizdirme
+    if selected_cols:
+        plot_df = df[selected_cols].copy()
+        
+        # Normalize işlemi (Min-Max Scaling)
+        if normalize:
+            for col in selected_cols:
+                plot_df[col] = (plot_df[col] - plot_df[col].min()) / (plot_df[col].max() - plot_df[col].min())
+            y_title = "Normalized Value (0-1)"
+        else:
+            y_title = "Actual Value"
+            
+        fig_line = px.line(plot_df, x=plot_df.index, y=selected_cols, title="Comparative Trend Analysis")
+        fig_line.update_layout(
+            template="plotly_white", 
+            height=500, 
+            yaxis_title=y_title,
+            hovermode="x unified",
+            legend=dict(orientation="h", y=1.1, title=None)
+        )
+        # Çizgi kalınlıklarını artır
+        fig_line.update_traces(line=dict(width=3))
         st.plotly_chart(fig_line, use_container_width=True)
-        
-    with col_dist_chart:
-        st.markdown("**📊 Data Distribution (Histogram)**")
-        fig_hist = px.histogram(df, x=variable, nbins=20, opacity=0.7)
-        fig_hist.update_traces(marker_color='#FF4B4B')
-        fig_hist.update_layout(template="plotly_white", height=400, margin=dict(l=20,r=20,t=30,b=20), yaxis_title="Frequency")
-        st.plotly_chart(fig_hist, use_container_width=True)
-        
-        with st.expander("ℹ️ How to interpret this chart?"):
-            st.markdown("""
-            **What does this histogram show?**
-            * **Tall Bars:** Represent the most common range of values (The 'Normal' state).
-            * **Wide Spread:** Indicates high volatility and uncertainty.
-            * **Isolated Bars:** Outliers representing economic shocks.
-            """)
 
-    st.markdown("---")
-    st.subheader(f"🔍 Detailed Data View: {variable}")
-    
-    col_t1, col_t2 = st.columns(2)
-    with col_t1:
-        st.write("**Statistical Summary**")
-        st.table(pd.DataFrame(stats))
-    with col_t2:
-        st.write("**Last 12 Months Data**")
-        styled_df = df[[variable]].tail(12).style.background_gradient(cmap="Blues")
-        st.dataframe(styled_df, use_container_width=True)
+        # 3. İstatistik Tablosu (Seçilenler için)
+        st.subheader("📊 Statistical Summary of Selected Indicators")
+        stats_df = df[selected_cols].describe()
+        st.dataframe(stats_df.style.format("{:,.2f}"), use_container_width=True)
+        
+    else:
+        st.warning("⚠️ Please select at least one variable to visualize.")
+
 
 # =============================================================================
 # TAB 3: MODEL İÇGÖRÜLERİ
